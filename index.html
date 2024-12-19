@@ -1,0 +1,1821 @@
+<html><head><base href="."><meta charset="utf-8">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #1a1a1a;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+  
+    .title-container {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 20px;
+      width: 100%;
+      min-height: 100vh;
+      padding: 20px 0 0 0;
+      margin: 0;
+    }
+  
+    .game-modes {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      max-width: 900px;
+      padding: 20px;
+      min-height: 100vh;
+    }
+  
+    .game-modes.active {
+      display: flex;
+      animation: slideIn 0.5s ease-out;
+    }
+  
+    .modes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      justify-items: center;
+    }
+  
+    .mode-card {
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      border-radius: 15px;
+      padding: 20px;
+      width: 250px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+    }
+  
+    .mode-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(255, 105, 180, 0.5);
+    }
+  
+    .mode-card h3 {
+      color: white;
+      margin: 0;
+      font-size: 1.2em;
+    }
+  
+    .mode-icon {
+      font-size: 2em;
+      color: white;
+      margin-bottom: 10px;
+    }
+  
+    h1, h2 {
+      color: #fff;
+      font-size: 4em;
+      text-transform: uppercase;
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-bottom: 30px;
+    }
+  
+    h2 {
+      font-size: 2.5em;
+      margin-top: 20px;
+    }
+  
+    h1:hover {
+      color: #ff69b4;
+      transform: scale(1.1);
+      background: linear-gradient(45deg, #ff69b4, #ff1493, #ff69b4);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+  
+    .floating-letters {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+  
+    .letter {
+      position: absolute;
+      color: rgba(255,255,255,0.2);
+      font-size: 2em;
+      animation: float 10s linear infinite;
+    }
+  
+    .start-button, .back-button, .how-to-play {
+      padding: 12px 30px;
+      font-size: 1.2em;
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      border: none;
+      border-radius: 20px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+    }
+  
+    .back-button {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 3;
+      font-size: 1em;
+      padding: 8px 20px;
+    }
+  
+    .how-to-play {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 3;
+      font-size: 1em;
+      padding: 8px 20px;
+    }
+  
+    .complete-word-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      position: relative;
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+      padding-top: 80px;
+    }
+  
+    .complete-word-screen.active {
+      display: flex;
+      animation: slideIn 0.5s ease-out;
+    }
+  
+    .difficulty-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+      padding-top: 80px;
+    }
+  
+    .difficulty-screen.active {
+      display: flex;
+      animation: slideIn 0.5s ease-out;
+    }
+  
+    .difficulty-card {
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      border-radius: 15px;
+      padding: 15px;
+      width: 100%;
+      max-width: 350px;
+      margin: 0 auto;
+      color: white;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+  
+    .difficulty-card:hover {
+      transform: scale(1.05) translateY(-5px);
+      box-shadow: 0 12px 30px rgba(255, 105, 180, 0.6);
+    }
+  
+    .difficulty-card h3 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1em;
+      margin: 0 0 5px 0;
+    }
+  
+    .difficulty-card h3::after {
+      content: '+';
+      font-size: 1.5em;
+      transition: transform 0.3s ease;
+    }
+  
+    .difficulty-card.expanded h3::after {
+      transform: rotate(45deg);
+    }
+  
+    .card-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+  
+    .difficulty-card.expanded .card-content {
+      max-height: 500px;
+      transition: max-height 0.3s ease-in;
+    }
+  
+    .difficulty-card p {
+      font-size: 0.9em;
+      margin: 8px 0;
+      line-height: 1.4;
+    }
+  
+    .examples {
+      font-size: 0.9em;
+      margin-top: 8px;
+      padding: 8px;
+    }
+  
+    .characteristics {
+      margin: 10px 0;
+      padding-left: 15px;
+    }
+  
+    .characteristics li {
+      font-size: 0.9em;
+      margin: 3px 0;
+    }
+  
+    @keyframes shimmer {
+      0% {
+        color: #fff;
+        transform: translateX(-3px);
+      }
+      50% {
+        color: #ffd700;
+        transform: translateX(3px);
+      }
+      100% {
+        color: #fff;
+        transform: translateX(-3px);
+      }
+    }
+  
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+    }
+  
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  
+    @keyframes scaleIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  
+    @keyframes celebrate {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2) rotate(10deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+  
+    @keyframes victoryPulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
+      50% { transform: scale(1.2); box-shadow: 0 0 20px 10px rgba(0, 255, 0, 0.7); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
+    }
+  
+    @keyframes wrongShake {
+      0%, 100% { transform: translateX(0); }
+      15%, 45%, 75% { transform: translateX(-20px) rotate(-2deg); }
+      30%, 60%, 90% { transform: translateX(20px) rotate(2deg); }
+    }
+  
+    @keyframes celebrationSpin {
+      0% { transform: scale(1) rotate(0deg); }
+      30% { transform: scale(1.3) rotate(180deg); }
+      60% { transform: scale(1.1) rotate(360deg); }
+      100% { transform: scale(1) rotate(360deg); }
+    }
+  
+    .word-container.victory {
+      animation: victoryPulse 1s ease-in-out;
+      background: linear-gradient(45deg, #32CD32, #00FF00);
+    }
+  
+    .word-container.wrong {
+      animation: wrongShake 0.5s ease-in-out;
+      background: linear-gradient(45deg, #FF4136, #FF6B6B);
+    }
+  
+    .word-feedback {
+      transition: all 0.3s ease;
+      font-size: 1.5em;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+  
+    .word-feedback.correct {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60px;
+      padding: 10px;
+    }
+  
+    .word-feedback.correct div {
+      animation: fadeIn 0.5s ease-out;
+    }
+  
+    .word-feedback.correct {
+      color: #00FF00 !important;
+      animation: celebrationSpin 1.5s ease-in-out;
+      transform-origin: center;
+    }
+  
+    .word-feedback.wrong {
+      color: #FF0000 !important;
+      animation: wrongShake 0.5s ease-in-out;
+    }
+  
+    .letter-input.wrong {
+      animation: wrongShake 0.5s ease-in-out;
+      background-color: #ffebee;
+      border: 2px solid #ff0000;
+    }
+  
+    .letter-input.correct {
+      animation: celebrationSpin 1.5s ease-in-out;
+      background-color: #e8f5e9;
+      border: 2px solid #00ff00;
+    }
+  
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+  
+    .modal-overlay.active {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+  
+    .modal-content {
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
+      animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  
+    .modal-title {
+      color: white;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+  
+    .modal-text {
+      color: white;
+      font-size: 1.2em;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+  
+    .close-modal {
+      padding: 10px 20px;
+      font-size: 1.2em;
+      background: white;
+      border: none;
+      border-radius: 15px;
+      color: #ff1493;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: block;
+      margin: 0 auto;
+    }
+  
+    .close-modal:hover {
+      transform: scale(1.05);
+      background: #f0f0f0;
+    }
+  
+    .difficulty-cards-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 15px;
+      justify-content: center;
+      overflow-x: hidden;
+      transition: all 0.5s ease;
+    }
+  
+    .difficulty-cards-container.single-card {
+      display: flex !important;
+      justify-content: center;
+      align-items: center;
+    }
+  
+    .difficulty-cards-container.single-card .difficulty-card:not(.selected) {
+      display: none;
+    }
+  
+    .difficulty-card.selected {
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  
+    .select-difficulty-btn {
+      padding: 8px 16px;
+      font-size: 0.9em;
+      margin: 8px auto 0;
+    }
+  
+    .selected-difficulty-container {
+      margin-top: 30px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.5s ease;
+    }
+  
+    .selected-difficulty-container[style*="display: flex"] {
+      animation: scaleIn 0.5s ease-out;
+    }
+  
+    #selected-difficulty-text {
+      font-size: 2em;
+      color: white;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+  
+    .game-screen {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding-top: 80px;
+      transition: all 0.5s ease;
+    }
+  
+    .game-screen[style*="display: flex"] {
+      animation: fadeIn 0.5s ease-out;
+    }
+  
+    .word-container {
+      position: relative;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 15px;
+      align-items: center;
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 600px;
+      width: 90%;
+    }
+  
+    .word-content {
+      grid-column: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+  
+    .button-container {
+      grid-column: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
+  
+    .submit-word, .next-word, .finish-game {
+      width: 100%;
+      margin: 0;
+    }
+  
+    .current-word {
+      font-size: 3em;
+      margin: 15px 0;
+      letter-spacing: 8px;
+    }
+  
+    .word-display {
+      font-family: monospace;
+    }
+  
+    .word-input {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  
+    .letter-input {
+      font-size: 2em;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      margin: 5px;
+      padding: 5px;
+      border: none;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+  
+    .letter-input:focus {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
+      outline: none;
+    }
+  
+    .letter-input.wrong {
+      background-color: #ffebee;
+      border: 2px solid #ff0000;
+    }
+  
+    .letter-input.correct {
+      background-color: #e8f5e9;
+      border: 2px solid #00ff00;
+    }
+  
+    .word-hint {
+      display: none;
+    }
+  
+    .word-hint.visible {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+  
+    .hint-icon {
+      font-size: 3em;
+      margin-bottom: 10px;
+      animation: bounce 1s ease infinite;
+    }
+  
+    .pink-icon {
+      color: #ff69b4;
+    }
+  
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+  
+    .submit-word, .next-word, .finish-game {
+      padding: 10px 25px;
+      font-size: 1.1em;
+      background: linear-gradient(45deg, #ff1493, #ff69b4);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+      margin: 5px;
+    }
+  
+    .submit-word:hover, .next-word:hover, .finish-game:hover {
+      transform: scale(1.1) translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 105, 180, 0.6);
+    }
+  
+    .submit-word:active, .next-word:active, .finish-game:active {
+      transform: scale(0.95);
+    }
+  
+    .word-feedback {
+      margin: 5px 0;
+      font-size: 1.2em;
+      min-height: 24px;
+      animation: none;
+    }
+  
+    .word-feedback[style*="color: rgb(0, 255, 0)"] {
+      animation: celebrate 0.8s ease-in-out;
+    }
+  
+    .finish-game {
+      padding: 12px 30px;
+      font-size: 1.2em;
+      margin-top: 15px;
+    }
+  
+    .streak-counter {
+      position: absolute;
+      top: 100px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      padding: 10px 20px;
+      border-radius: 25px;
+      color: white;
+      font-size: 1.2em;
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+      animation: fadeIn 0.3s ease-out;
+    }
+  
+    .streak-icon {
+      font-size: 1.5em;
+      margin-right: 10px;
+      animation: streakPulse 1s infinite;
+    }
+  
+    .streak-number {
+      display: flex;
+      align-items: center;
+    }
+  
+    @keyframes streakPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+  
+    @keyframes streakIncrement {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.5); }
+      100% { transform: scale(1); }
+    }
+  
+    .streak-increment {
+      animation: streakIncrement 0.5s ease-out;
+    }
+  
+    /* Add new modal styles */
+  .word-complete-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(45deg, #ff69b4, #ff1493);
+    padding: 30px;
+    border-radius: 15px;
+    z-index: 1000;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
+    animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .word-complete-modal.active {
+    display: block;
+  }
+  
+  .word-complete-modal h3 {
+    color: white;
+    font-size: 2em;
+    margin-bottom: 15px;
+  }
+  
+  .word-complete-modal p {
+    color: white;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+  }
+  
+  .word-complete-modal button {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    background: white;
+    border: none;
+    border-radius: 15px;
+    color: #ff1493;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .word-complete-modal button:hover {
+    transform: scale(1.05);
+    background: #f0f0f0;
+  }
+  
+  .modal-overlay-word {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+  }
+  
+  .modal-overlay-word.active {
+    display: block;
+  }
+  
+  /* Add styles for the skip button */
+  .skip-word {
+    padding: 10px 25px;
+    font-size: 1.1em;
+    background: linear-gradient(45deg, #ff1493, #ff69b4);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+    margin: 5px;
+  }
+  
+  .skip-word:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.6);
+  }
+  
+  .skip-word:active {
+    transform: scale(0.95);
+  }
+  
+  /* Add styles for the timer toggle button */
+  .timer-toggle {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 8px 20px;
+    font-size: 1em;
+    background: linear-gradient(45deg, #ff69b4, #ff1493);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .timer-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 105, 180, 0.5);
+  }
+  
+  .timer-toggle i {
+    font-size: 1.2em;
+  }
+  
+  .timer-toggle.active {
+    background: linear-gradient(45deg, #32CD32, #00FF00);
+  }
+  
+  /* Timer display styles */
+  .timer-display {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 8px 20px;
+    font-size: 1.2em;
+    background: linear-gradient(45deg, #ff69b4, #ff1493);
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+    display: none;
+  }
+  
+  .timer-display.active {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* Add styles for synonyms screen */
+  .synonyms-screen {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px 0 0 0;
+    margin: 0;
+    animation: slideIn 0.5s ease-out;
+  }
+  
+  .synonyms-screen h2 {
+    text-align: center;
+    width: 100%;
+    margin: 20px auto;
+    color: #fff;
+    font-size: 2.5em;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  
+  .synonyms-screen .start-button {
+    padding: 12px 30px;
+    font-size: 1.2em;
+    background: linear-gradient(45deg, #ff69b4, #ff1493);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+  }
+  
+  .synonyms-screen .start-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 105, 180, 0.5);
+  }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  </head>
+  <body>
+    <div class="floating-letters" id="letterContainer"></div>
+    <div class="title-container">
+      <h1>Word Games</h1>
+      <button class="start-button">Start</button>
+      <div class="game-modes">
+        <h2>Select Game Mode</h2>
+        <div class="modes-grid">
+          <div class="mode-card" id="complete-word-mode">
+            <i class="mode-icon fas fa-pencil-alt"></i>
+            <h3>Complete the Word</h3>
+          </div>
+          <div class="mode-card">
+            <i class="mode-icon fas fa-random"></i>
+            <h3>Scrambled Word</h3>
+          </div>
+          <div class="mode-card">
+            <i class="mode-icon fas fa-gamepad"></i>
+            <h3>Letter Battle</h3>
+          </div>
+          <div class="mode-card">
+            <i class="mode-icon fas fa-equals"></i>
+            <h3>Synonyms</h3>
+          </div>
+          <div class="mode-card">
+            <i class="mode-icon fas fa-stairs"></i>
+            <h3>Word Ladder</h3>
+          </div>
+          <div class="mode-card">
+            <i class="mode-icon fas fa-cloud-rain"></i>
+            <h3>Letter Rain</h3>
+          </div>
+        </div>
+      </div>
+      <div class="complete-word-screen">
+        <button class="back-button">Back</button>
+        <button class="how-to-play">How to Play</button>
+        <h2>Complete the Word</h2>
+        <button class="start-button" id="startGameBtn">Start Game</button>
+      </div>
+      <div class="difficulty-screen">
+        <button class="back-button">Back</button>
+        <h2>Select Difficulty</h2>
+        <button class="timer-toggle">
+          <i class="fas fa-clock"></i>
+          Timer Mode: Off
+        </button>
+        <div class="difficulty-cards-container">
+          <div class="difficulty-card">
+            <h3>Easy</h3>
+            <div class="card-content">
+              <p>Description: Designed for beginners who are just getting familiar with basic vocabulary.</p>
+              <ul class="characteristics">
+                <li>Short words (3-5 letters)</li>
+                <li>Only one missing letter per word</li>
+                <li>Visual hints (related images)</li>
+                <li>Definition shown automatically</li>
+              </ul>
+              <div class="examples">
+                Examples:<br>
+                _C_T &#x2192; CAT<br>
+                _O_G &#x2192; DOG
+              </div>
+              <button class="select-difficulty-btn">Select Difficulty</button>
+            </div>
+          </div>
+          <div class="difficulty-card">
+            <h3>Intermediate</h3>
+            <div class="card-content">
+              <p>Description: Focused on players with basic vocabulary knowledge who want to challenge themselves a bit more.</p>
+              <ul class="characteristics">
+                <li>Medium words (6-8 letters)</li>
+                <li>2 or 3 missing letters in different positions</li>
+                <li>Player can choose hints (definition or image)</li>
+              </ul>
+              <div class="examples">
+                Examples:<br>
+                C_MP_T_ &#x2192; COMPLETE<br>
+                T_ACH_R &#x2192; TEACHER
+              </div>
+              <button class="select-difficulty-btn">Select Difficulty</button>
+            </div>
+          </div>
+          <div class="difficulty-card">
+            <h3>Hard</h3>
+            <div class="card-content">
+              <p>Description: Ideal for advanced users looking to improve their accuracy and speed in learning more complex words.</p>
+              <ul class="characteristics">
+                <li>Long words (8-12 letters)</li>
+                <li>3 or more missing letters (random positions)</li>
+                <li>No automatic hints (can be purchased with game coins)</li>
+                <li>Time limit to complete the word (30 seconds)</li>
+              </ul>
+              <div class="examples">
+                Examples:<br>
+                E_U_AT_ON &#x2192; EDUCATION<br>
+                D_V_LOP_ _NT &#x2192; DEVELOPMENT
+              </div>
+              <button class="select-difficulty-btn">Select Difficulty</button>
+            </div>
+          </div>
+        </div>
+        <div class="selected-difficulty-container" style="display: none; text-align: center;">
+          <h3 id="selected-difficulty-text" style="color: white; margin-bottom: 20px;"></h3>
+          <button class="start-button" id="beginGameBtn">Start Game</button>
+        </div>
+      </div>
+      <div class="game-screen" style="display: none;">
+        <button class="back-button">Back</button>
+        <div class="word-container">
+          <div class="word-content">
+            <h2>Complete the Word</h2>
+            <div class="current-word">
+              <span class="word-display"></span>
+            </div>
+            <div class="word-input">
+            </div>
+            <div class="word-hint">
+              <p>Hint: <span class="hint-text"></span></p>
+            </div>
+            <div class="word-feedback"></div>
+          </div>
+          <div class="button-container">
+            <button class="submit-word">Check Answer</button>
+            <button class="next-word" style="display: none;">Next Word</button>
+            <button class="skip-word">Skip Word</button>
+            <button class="finish-game">Finish Game</button>
+          </div>
+        </div>
+        <div class="streak-counter">
+          <div class="streak-icon">🔥</div>
+          <div class="streak-number">Streak: <span id="streak-count">0</span></div>
+        </div>
+        <div class="timer-display">
+          <i class="fas fa-clock"></i>
+          <span class="time-remaining">60</span>s
+        </div>
+      </div>
+    </div>
+  
+    <div class="modal-overlay" id="howToPlayModal">
+      <div class="modal-content">
+        <h3 class="modal-title">HOW TO PLAY</h3>
+        <p class="modal-text">The game is about filling in the missing letters to form and complete words.</p>
+        <button class="close-modal">Close</button>
+      </div>
+    </div>
+  
+    <div class="modal-overlay-word"></div>
+    <div class="word-complete-modal">
+      <h3 class="complete-word-text"></h3>
+      <p class="complete-word-translation"></p>
+      <button class="close-word-modal">Close</button>
+    </div>
+  
+  <script>
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const container = document.getElementById('letterContainer');
+  const startButton = document.querySelector('.start-button');
+  const titleContainer = document.querySelector('.title-container');
+  const gameModes = document.querySelector('.game-modes');
+  const mainTitle = document.querySelector('h1');
+  const completeWordScreen = document.querySelector('.complete-word-screen');
+  const completeWordMode = document.getElementById('complete-word-mode');
+  const backButton = document.querySelector('.back-button');
+  const howToPlayBtn = document.querySelector('.how-to-play');
+  const modal = document.getElementById('howToPlayModal');
+  const closeModalBtn = document.querySelector('.close-modal');
+  const startGameBtn = document.getElementById('startGameBtn');
+  const difficultyScreen = document.querySelector('.difficulty-screen');
+  const selectedDifficultyContainer = document.querySelector('.selected-difficulty-container');
+  const gameScreen = document.querySelector('.game-screen');
+  const wordCompleteModal = document.querySelector('.word-complete-modal');
+  const modalOverlayWord = document.querySelector('.modal-overlay-word');
+  const MAX_LETTERS = 30;
+  let currentStreak = 0;
+  
+  // Add new global variables 
+  let timerMode = false;
+  let timeRemaining = 120; // 2 minutes in seconds
+  let timerInterval = null;
+  
+  // Add timer toggle functionality
+  const timerToggle = document.querySelector('.timer-toggle');
+  timerToggle.addEventListener('click', () => {
+    timerMode = !timerMode;
+    timerToggle.classList.toggle('active');
+    timerToggle.innerHTML = `
+      <i class="fas fa-clock"></i>
+      Timer Mode: ${timerMode ? 'On' : 'Off'}
+    `;
+  });
+  
+  const easyWords = [{
+    word: "CAT",
+    hint: "A common house pet that meows",
+    icon: "fa-cat",
+    translation: "Gato"
+  }, {
+    word: "DOG",
+    hint: "A loyal pet that barks",
+    icon: "fa-dog",
+    translation: "Perro"
+  }, {
+    word: "FISH",
+    hint: "Lives in water",
+    icon: "fa-fish",
+    translation: "Pez"
+  }, {
+    word: "BIRD",
+    hint: "Flying animal",
+    icon: "fa-dove",
+    translation: "Pájaro"
+  }, {
+    word: "PIG",
+    hint: "Farm animal that says oink",
+    icon: "fa-pig",
+    translation: "Cerdo"
+  }, {
+    word: "RED",
+    hint: "Color of a stop sign",
+    icon: "fa-square text-danger",
+    translation: "Rojo"
+  }, {
+    word: "BLUE",
+    hint: "Color of the sky",
+    icon: "fa-square text-primary",
+    translation: "Azul"
+  }, {
+    word: "GRAY",
+    hint: "Color between black and white",
+    icon: "fa-square text-secondary",
+    translation: "Gris"
+  }, {
+    word: "PINK",
+    hint: "Light red color", 
+    icon: "fa-square pink-icon",
+    translation: "Rosa"
+  }];
+  
+  const intermediateWords = [
+    // Animals
+    { word: "CAMPING", hint: "Outdoor activity with tents", icon: "fa-campground", translation: "Campamento" },
+    { word: "ELEPHANT", hint: "Large gray animal with a trunk", icon: "fa-elephant", translation: "Elefante" },
+    { word: "PENGUIN", hint: "Flightless bird that swims", icon: "fa-penguin", translation: "Pingüino" },
+    { word: "CROCODILE", hint: "Large reptile that lives in water", icon: "fa-dragon", translation: "Cocodrilo" },
+    { word: "DOLPHIN", hint: "Intelligent sea mammal", icon: "fa-fish", translation: "Delfín" },
+    
+    // Colors & Nature
+    { word: "GREEN", hint: "Color of grass and leaves", icon: "fa-leaf", translation: "Verde" },
+    { word: "PURPLE", hint: "Color of grapes and lavender", icon: "fa-palette", translation: "Morado" },
+    { word: "ORANGE", hint: "Color of carrots and sunset", icon: "fa-sun", translation: "Naranja" },
+    { word: "YELLOW", hint: "Color of bananas and sunflowers", icon: "fa-star", translation: "Amarillo" },
+    { word: "VIOLET", hint: "Deep purple color, like the flower", icon: "fa-flower", translation: "Violeta" },
+    
+    // Actions
+    { word: "TAKING", hint: "Getting or grabbing something", icon: "fa-hand", translation: "Tomando" },
+    { word: "LEARN", hint: "Gain knowledge or skills", icon: "fa-book", translation: "Aprender" },
+    { word: "BUILD", hint: "Construct or create something", icon: "fa-hammer", translation: "Construir" },
+    { word: "DANCE", hint: "Move to music", icon: "fa-music", translation: "Bailar" },
+    { word: "READING", hint: "Looking at and understanding text", icon: "fa-book-reader", translation: "Leyendo" },
+    
+    // Common Objects
+    { word: "TABLE", hint: "Furniture with a flat surface", icon: "fa-table", translation: "Mesa" },
+    { word: "CHAIR", hint: "Furniture for sitting", icon: "fa-chair", translation: "Silla" },
+    { word: "BOOK", hint: "Written or printed work", icon: "fa-book", translation: "Libro" },
+    { word: "COMPUTER", hint: "Electronic device for processing data", icon: "fa-laptop", translation: "Computadora" },
+    { word: "TELEPHONE", hint: "Device for communication", icon: "fa-phone", translation: "Teléfono" },
+    
+    // Family
+    { word: "FATHER", hint: "Male parent", icon: "fa-user", translation: "Padre" },
+    { word: "MOTHER", hint: "Female parent", icon: "fa-user", translation: "Madre" },
+    { word: "SISTER", hint: "Female sibling", icon: "fa-user", translation: "Hermana" },
+    { word: "BROTHER", hint: "Male sibling", icon: "fa-user", translation: "Hermano" },
+    { word: "COUSIN", hint: "Child of your aunt or uncle", icon: "fa-user", translation: "Primo" },
+    
+    // Food
+    { word: "BANANA", hint: "Yellow curved fruit", icon: "fa-apple-whole", translation: "Banana" },
+    { word: "CARROT", hint: "Orange root vegetable", icon: "fa-carrot", translation: "Zanahoria" },
+    { word: "PINEAPPLE", hint: "Tropical spiky fruit", icon: "fa-apple-whole", translation: "Piña" },
+    { word: "TOMATO", hint: "Red fruit/vegetable", icon: "fa-apple-whole", translation: "Tomate" },
+    { word: "WATERMELON", hint: "Large green striped fruit", icon: "fa-apple-whole", translation: "Sandía" },
+    
+    // Body Parts
+    { word: "FINGER", hint: "Digit on hand", icon: "fa-hand", translation: "Dedo" },
+    { word: "SHOULDER", hint: "Joint connecting arm to body", icon: "fa-person", translation: "Hombro" },
+    { word: "TONGUE", hint: "Muscle in mouth for tasting", icon: "fa-face-smile", translation: "Lengua" },
+    { word: "KNEE", hint: "Joint in the leg", icon: "fa-person", translation: "Rodilla" },
+    { word: "ELBOW", hint: "Joint in the arm", icon: "fa-person", translation: "Codo" },
+    
+    // Time
+    { word: "JANUARY", hint: "First month of the year", icon: "fa-calendar", translation: "Enero" },
+    { word: "FEBRUARY", hint: "Second month of the year", icon: "fa-calendar", translation: "Febrero" },
+    { word: "WEDNESDAY", hint: "Middle day of the week", icon: "fa-calendar-day", translation: "Miércoles" },
+    { word: "DECEMBER", hint: "Last month of the year", icon: "fa-calendar", translation: "Diciembre" },
+    { word: "TUESDAY", hint: "Second day of the week", icon: "fa-calendar-day", translation: "Martes" }
+  ];
+  
+  const hardWords = [
+    // Animals
+    { word: "ELEPHANT", hint: "Large gray animal with a trunk", icon: "fa-elephant", translation: "Elefante" },
+    { word: "CROCODILE", hint: "Large reptile that lives in water", icon: "fa-dragon", translation: "Cocodrilo" },
+    { word: "KANGAROO", hint: "Australian hopping animal", icon: "fa-paw", translation: "Canguro" },
+    { word: "HIPPOPOTAMUS", hint: "Large water-dwelling African mammal", icon: "fa-hippo", translation: "Hipopótamo" },
+    { word: "CHAMELEON", hint: "Lizard that changes color", icon: "fa-dragon", translation: "Camaleón" },
+  
+    // Colors & Nature 
+    { word: "PURPLE", hint: "Color between red and blue", icon: "fa-palette", translation: "Morado" },
+    { word: "TURQUOISE", hint: "Blue-green color", icon: "fa-palette", translation: "Turquesa" },
+    { word: "AQUAMARINE", hint: "Light blue-green color", icon: "fa-palette", translation: "Aguamarina" },
+    { word: "CLIMATE", hint: "Long-term weather patterns", icon: "fa-cloud-sun", translation: "Clima" },
+    { word: "EVERGREEN", hint: "Plant that stays green year-round", icon: "fa-tree", translation: "Siempreverde" },
+  
+    // Actions
+    { word: "IMAGINATE", hint: "To form mental images", icon: "fa-brain", translation: "Imaginar" },
+    { word: "PURCHASE", hint: "To buy something", icon: "fa-shopping-cart", translation: "Comprar" },
+    { word: "ACCOMPLISH", hint: "To achieve or complete successfully", icon: "fa-trophy", translation: "Lograr" },
+    { word: "UNDERSTAND", hint: "To comprehend or grasp meaning", icon: "fa-lightbulb", translation: "Entender" },
+    { word: "CELEBRATE", hint: "To observe a special occasion", icon: "fa-party-horn", translation: "Celebrar" },
+  
+    // Common Objects
+    { word: "COMMUNICATION", hint: "Exchange of information", icon: "fa-comments", translation: "Comunicación" },
+    { word: "REFRIGERATOR", hint: "Appliance that keeps food cold", icon: "fa-box", translation: "Refrigerador" },
+    { word: "AIRPLANE", hint: "Flying transportation vehicle", icon: "fa-plane", translation: "Avión" },
+    { word: "MICROWAVE", hint: "Appliance for heating food quickly", icon: "fa-square", translation: "Microondas" },
+    { word: "TELEVISION", hint: "Device for watching shows", icon: "fa-tv", translation: "Televisión" },
+  
+    // Family
+    { word: "GRANDMOTHER", hint: "Mother's or father's mother", icon: "fa-user", translation: "Abuela" },
+    { word: "GRANDFATHER", hint: "Mother's or father's father", icon: "fa-user", translation: "Abuelo" },
+    { word: "RELATIVES", hint: "Family members", icon: "fa-users", translation: "Parientes" },
+    { word: "NIECE", hint: "Brother's or sister's daughter", icon: "fa-child", translation: "Sobrina" },
+    { word: "ANCESTORS", hint: "Family members from past generations", icon: "fa-users", translation: "Antepasados" },
+  
+    // Food
+    { word: "STRAWBERRY", hint: "Red berry with seeds on outside", icon: "fa-apple-whole", translation: "Fresa" },
+    { word: "POMEGRANATE", hint: "Red fruit with many seeds inside", icon: "fa-apple-whole", translation: "Granada" },
+    { word: "BLUEBERRY", hint: "Small round blue fruit", icon: "fa-apple-whole", translation: "Arándano" },
+    { word: "APRICOT", hint: "Small orange fruit similar to peach", icon: "fa-apple-whole", translation: "Albaricoque" },
+    { word: "CAULIFLOWER", hint: "White vegetable similar to broccoli", icon: "fa-carrot", translation: "Coliflor" },
+  
+    // Body Parts
+    { word: "SHOULDER", hint: "Joint connecting arm to body", icon: "fa-person", translation: "Hombro" },
+    { word: "ABDOMEN", hint: "Middle section of the body", icon: "fa-person", translation: "Abdomen" },
+    { word: "CLAVICLE", hint: "Collarbone", icon: "fa-bone", translation: "Clavícula" },
+    { word: "PHALANGES", hint: "Finger bones", icon: "fa-hand", translation: "Falanges" },
+    { word: "THORACIC", hint: "Relating to the chest area", icon: "fa-person", translation: "Torácico" },
+  
+    // Time
+    { word: "SATURDAY", hint: "Day of the week", icon: "fa-calendar-day", translation: "Sábado" },
+    { word: "NOVEMBER", hint: "Month of the year", icon: "fa-calendar", translation: "Noviembre" },
+    { word: "SEPTEMBER", hint: "Month of the year", icon: "fa-calendar", translation: "Septiembre" },
+    { word: "DECEMBER", hint: "Last month of the year", icon: "fa-calendar", translation: "Diciembre" },
+    { word: "OCTOBER", hint: "Month of the year", icon: "fa-calendar", translation: "Octubre" }
+  ];
+  
+  let usedWords = [];
+  let screenHistory = ['title'];
+  
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+  let currentWordIndex = 0;
+  let currentWord = null;
+  
+  function startGame(difficulty) {
+    let wordList;
+    switch(difficulty) {
+      case 'easy':
+        wordList = easyWords;
+        timeRemaining = 120; // 2 minutes
+        break;
+      case 'intermediate':
+        wordList = intermediateWords;
+        timeRemaining = 120;
+        break;
+      case 'hard':
+        wordList = hardWords;
+        timeRemaining = 120;
+        break;
+      default:
+        wordList = easyWords;
+        timeRemaining = 120;
+    }
+    
+    usedWords = shuffleArray([...wordList]);
+    currentWordIndex = 0;
+    
+    // Start timer if timer mode is active
+    if (timerMode) {
+      const timerDisplay = document.querySelector('.timer-display');
+      timerDisplay.classList.add('active');
+      startTimer();
+    }
+    
+    showNextWord();
+  }
+  
+  // Add timer functions
+  function startTimer() {
+    const timerDisplay = document.querySelector('.time-remaining');
+    clearInterval(timerInterval);
+    
+    timerInterval = setInterval(() => {
+      timeRemaining--;
+      timerDisplay.textContent = timeRemaining;
+      
+      if (timeRemaining <= 0) {
+        clearInterval(timerInterval);
+        endGame();
+      }
+    }, 1000);
+  }
+  
+  function endGame() {
+    clearInterval(timerInterval);
+    document.querySelector('.timer-display').classList.remove('active');
+    
+    // Show game over modal
+    const wordCompleteModal = document.querySelector('.word-complete-modal');
+    const modalOverlayWord = document.querySelector('.modal-overlay-word');
+    const wordText = document.querySelector('.complete-word-text');
+    const wordTranslation = document.querySelector('.complete-word-translation');
+    
+    wordText.textContent = 'Time\'s Up!';
+    wordTranslation.textContent = `Final Score: ${currentStreak}`;
+    
+    modalOverlayWord.classList.add('active');
+    wordCompleteModal.classList.add('active');
+    
+    // Reset game state
+    currentStreak = 0;
+    document.getElementById('streak-count').textContent = currentStreak;
+  }
+  
+  function showNextWord() {
+    if (currentWordIndex >= usedWords.length) {
+      usedWords = shuffleArray([...usedWords]);
+      currentWordIndex = 0;
+    }
+    
+    const wordContainer = document.querySelector('.word-container');
+    wordContainer.style.opacity = '0';
+    wordContainer.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+      currentWord = usedWords[currentWordIndex];
+      const wordDisplay = document.querySelector('.word-display');
+      const hintText = document.querySelector('.hint-text');
+      const wordInput = document.querySelector('.word-input');
+      const wordHint = document.querySelector('.word-hint');
+      
+      // Reset hint visibility
+      wordHint.classList.remove('visible');
+      
+      // Create pattern based on word length and difficulty
+      let displayWord = '';
+      let missingPositions = [];
+      
+      for(let i = 0; i < currentWord.word.length; i++) {
+        if (i % 2 === 1 || Math.random() < 0.3) {
+          displayWord += '_';
+          missingPositions.push(i);
+        } else {
+          displayWord += currentWord.word[i];
+        }
+        displayWord += ' ';
+      }
+      
+      wordDisplay.textContent = displayWord.trim();
+      
+      // Clear previous inputs and add show hint button for intermediate words
+      wordInput.innerHTML = '';
+      
+      // Create input fields for each missing letter
+      missingPositions.forEach(() => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.maxLength = '1';
+        input.className = 'letter-input';
+        wordInput.appendChild(input);
+      });
+      
+      // Set up hint based on difficulty
+      const difficultyText = document.getElementById('selected-difficulty-text').textContent;
+      const isIntermediate = difficultyText.includes('Intermediate');
+      
+      if (isIntermediate) {
+        // For intermediate mode, add show hint button
+        const showHintBtn = document.createElement('button');
+        showHintBtn.className = 'show-hint-btn';
+        showHintBtn.textContent = 'Show Hint';
+        showHintBtn.onclick = () => {
+          wordHint.classList.add('visible');
+          showHintBtn.style.display = 'none';
+        };
+        wordInput.insertAdjacentElement('afterend', showHintBtn);
+        
+        // Prepare hint but don't show it yet
+        hintText.innerHTML = `
+          <i class="hint-icon fas ${currentWord.icon}"></i>
+          <span>${currentWord.hint}</span>
+        `;
+      } else {
+        // For easy mode, show hint immediately
+        wordHint.classList.add('visible');
+        hintText.innerHTML = `
+          <i class="hint-icon fas ${currentWord.icon}"></i>
+          <span>${currentWord.hint}</span>
+        `;
+      }
+      
+      document.querySelector('.submit-word').style.display = 'block';
+      document.querySelector('.next-word').style.display = 'none';
+      
+      wordContainer.style.opacity = '1';
+      wordContainer.style.transform = 'translateY(0)';
+    }, 300);
+  }
+  
+  startButton.addEventListener('click', () => {
+    startButton.style.display = 'none';
+    gameModes.classList.add('active');
+    mainTitle.style.display = 'none';
+    screenHistory.push('modes');
+  });
+  
+  completeWordMode.addEventListener('click', () => {
+    gameModes.classList.remove('active');
+    completeWordScreen.classList.add('active');
+    screenHistory.push('complete-word');
+  });
+  
+  // Update event listener for Synonyms mode card
+  document.querySelectorAll('.mode-card').forEach(card => {
+    if (card.querySelector('h3').textContent === 'Synonyms') {
+      card.addEventListener('click', () => {
+        gameModes.classList.remove('active');
+        // Create and show synonyms screen with centered heading
+        const synonymsScreen = document.createElement('div');
+        synonymsScreen.className = 'synonyms-screen';
+        synonymsScreen.innerHTML = `
+          <button class="back-button">Back</button>
+          <button class="how-to-play">How to Play</button>
+          <h2>Synonyms</h2>
+          <button class="start-button" id="startSynonymsBtn">Start Game</button>
+        `;
+        document.querySelector('.title-container').appendChild(synonymsScreen);
+        screenHistory.push('synonyms');
+  
+        // Add back button functionality for synonyms screen 
+        synonymsScreen.querySelector('.back-button').addEventListener('click', () => {
+          synonymsScreen.remove();
+          gameModes.classList.add('active');
+          screenHistory.pop();
+        });
+      });
+    }
+  });
+  
+  startGameBtn.addEventListener('click', () => {
+    completeWordScreen.classList.remove('active');
+    difficultyScreen.classList.add('active');
+    screenHistory.push('difficulty');
+  });
+  
+  backButton.addEventListener('click', () => {
+    clearInterval(timerInterval);
+    document.querySelector('.timer-display').classList.remove('active');
+    
+    const currentScreen = screenHistory[screenHistory.length - 1];
+    const previousScreen = screenHistory[screenHistory.length - 2];
+  
+    screenHistory.pop();
+    gameScreen.style.display = 'none';
+    difficultyScreen.classList.remove('active');
+    completeWordScreen.classList.remove('active');
+    gameModes.classList.remove('active');
+    startButton.style.display = 'none';
+    selectedDifficultyContainer.style.display = 'none';
+  
+    switch (previousScreen) {
+      case 'modes':
+        gameModes.classList.add('active');
+        document.querySelectorAll('.mode-card').forEach(card => {
+          const newCard = card.cloneNode(true);
+          card.parentNode.replaceChild(newCard, card);
+          
+          if (newCard.id === 'complete-word-mode') {
+            newCard.addEventListener('click', () => {
+              gameModes.classList.remove('active');
+              completeWordScreen.classList.add('active');
+              screenHistory.push('complete-word');
+            });
+          }
+        });
+        break;
+      case 'complete-word':
+        completeWordScreen.classList.add('active');
+        break;
+      case 'difficulty':
+        difficultyScreen.classList.add('active');
+        document.querySelector('.difficulty-cards-container').style.display = 'grid';
+        break;
+      case 'selected-difficulty':
+        difficultyScreen.classList.add('active');
+        selectedDifficultyContainer.style.display = 'flex';
+        document.querySelector('.difficulty-cards-container').style.display = 'none';
+        break;
+      default:
+        gameModes.classList.add('active');
+        screenHistory = ['modes'];
+        document.querySelectorAll('.mode-card').forEach(card => {
+          const newCard = card.cloneNode(true);
+          card.parentNode.replaceChild(newCard, card);
+          
+          if (newCard.id === 'complete-word-mode') {
+            newCard.addEventListener('click', () => {
+              gameModes.classList.remove('active');
+              completeWordScreen.classList.add('active');
+              screenHistory.push('complete-word');
+            });
+          }
+        });
+        break;
+    }
+  });
+  
+  document.querySelector('.finish-game').addEventListener('click', () => {
+    clearInterval(timerInterval);
+    document.querySelector('.timer-display').classList.remove('active');
+    
+    currentStreak = 0;
+    document.getElementById('streak-count').textContent = currentStreak;
+    gameScreen.style.animation = 'slideOut 0.5s ease-out forwards';
+    
+    setTimeout(() => {
+      gameScreen.style.display = 'none';
+      gameScreen.style.animation = '';
+      gameModes.classList.add('active');
+      startButton.style.display = 'none';
+      screenHistory = ['modes'];
+      currentWordIndex = 0;
+      document.querySelector('.word-feedback').textContent = '';
+      document.querySelector('.word-input').innerHTML = '';
+      
+      document.querySelectorAll('.mode-card').forEach(card => {
+        const newCard = card.cloneNode(true);
+        card.parentNode.replaceChild(newCard, card);
+        
+        if (newCard.id === 'complete-word-mode') {
+          newCard.addEventListener('click', () => {
+            gameModes.classList.remove('active');
+            completeWordScreen.classList.add('active');
+            screenHistory.push('complete-word');
+          });
+        }
+      });
+    }, 500);
+  });
+  
+  howToPlayBtn.addEventListener('click', () => {
+    modal.classList.add('active');
+  });
+  
+  closeModalBtn.addEventListener('click', () => {
+    modal.classList.remove('active');
+  });
+  
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      modal.classList.remove('active');
+    }
+  });
+  
+  const difficultyCards = document.querySelectorAll('.difficulty-card');
+  difficultyCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const container = document.querySelector('.difficulty-cards-container');
+      
+      if (card.classList.contains('selected')) {
+        // If card is already selected, toggle expansion and restore grid
+        card.classList.toggle('expanded');
+        container.classList.remove('single-card');
+        card.classList.remove('selected');
+        document.querySelectorAll('.difficulty-card').forEach(otherCard => {
+          otherCard.style.display = '';
+        });
+      } else {
+        // If card is not selected, select it and hide others
+        const wasExpanded = card.classList.contains('expanded');
+        document.querySelectorAll('.difficulty-card').forEach(otherCard => {
+          otherCard.classList.remove('expanded', 'selected');
+        });
+        
+        container.classList.add('single-card');
+        card.classList.add('selected');
+        
+        // If it wasn't expanded before, expand it
+        if (!wasExpanded) {
+          card.classList.add('expanded');
+        }
+        
+        // Center scroll to selected card
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+  
+  document.querySelectorAll('.select-difficulty-btn').forEach(button => {
+    button.addEventListener('click', e => {
+      e.stopPropagation();
+      const difficultyCard = e.target.closest('.difficulty-card');
+      const difficultyName = difficultyCard.querySelector('h3').textContent;
+      document.querySelector('.difficulty-cards-container').style.display = 'none';
+      selectedDifficultyContainer.style.display = 'flex';
+      document.getElementById('selected-difficulty-text').textContent = `Selected Difficulty: ${difficultyName}`;
+      screenHistory.push('selected-difficulty');
+      
+      // Reset the cards display when selecting difficulty
+      const container = document.querySelector('.difficulty-cards-container');
+      container.classList.remove('single-card');
+      document.querySelectorAll('.difficulty-card').forEach(card => {
+        card.classList.remove('selected', 'expanded');
+        card.style.display = '';
+      });
+    });
+  });
+  
+  document.getElementById('beginGameBtn').addEventListener('click', () => {
+    const difficultyText = document.getElementById('selected-difficulty-text').textContent;
+    let difficulty;
+    if (difficultyText.includes('Intermediate')) {
+      difficulty = 'intermediate';
+    } else if (difficultyText.includes('Hard')) {
+      difficulty = 'hard';  
+    } else {
+      difficulty = 'easy';
+    }
+    
+    difficultyScreen.style.display = 'none';
+    gameScreen.style.display = 'flex';
+    startGame(difficulty);
+    screenHistory.push('game');
+  });
+  
+  document.querySelector('.submit-word').addEventListener('click', checkAnswer);
+  document.querySelector('.next-word').addEventListener('click', () => {
+    currentWordIndex++;
+    showNextWord();
+  });
+  
+  // Add event listener for skip word button
+  document.querySelector('.skip-word').addEventListener('click', () => {
+    currentWordIndex++;
+    showNextWord();
+    // Reset streak when skipping
+    currentStreak = 0;
+    document.getElementById('streak-count').textContent = currentStreak;
+  });
+  
+  function checkAnswer() {
+    const inputs = document.querySelectorAll('.letter-input');
+    const feedback = document.querySelector('.word-feedback');
+    const submitBtn = document.querySelector('.submit-word');
+    const nextBtn = document.querySelector('.next-word');
+    const wordContainer = document.querySelector('.word-container');
+    
+    feedback.classList.remove('correct', 'wrong');
+    wordContainer.classList.remove('victory', 'wrong');
+    inputs.forEach(input => input.classList.remove('correct', 'wrong'));
+    
+    let displayedWord = document.querySelector('.word-display').textContent.split(' ').join('');
+    let currentIndex = 0;
+    let isCorrect = true;
+    
+    for(let i = 0; i < displayedWord.length; i++) {
+      if(displayedWord[i] === '_') {
+        const inputValue = inputs[currentIndex].value.toUpperCase();
+        if(inputValue !== currentWord.word[i]) {
+          isCorrect = false;
+          inputs[currentIndex].classList.add('wrong');
+        } else {
+          inputs[currentIndex].classList.add('correct');
+        }
+        currentIndex++;
+      }
+    }
+    
+    if(isCorrect) {
+      // Show word completion modal
+      const wordText = document.querySelector('.complete-word-text');
+      const wordTranslation = document.querySelector('.complete-word-translation');
+      
+      wordText.textContent = currentWord.word;
+      wordTranslation.textContent = currentWord.translation;
+      
+      modalOverlayWord.classList.add('active');
+      wordCompleteModal.classList.add('active');
+      
+      feedback.classList.add('correct');
+      wordContainer.classList.add('victory');
+      inputs.forEach(input => input.classList.add('correct'));
+      submitBtn.style.display = 'none';
+      nextBtn.style.display = 'block';
+      
+      currentStreak++;
+      const streakCount = document.getElementById('streak-count');
+      streakCount.textContent = currentStreak;
+      streakCount.classList.remove('streak-increment');
+      void streakCount.offsetWidth;
+      streakCount.classList.add('streak-increment');
+  
+      // Add 20 seconds for correct answer if timer mode is active
+      if (timerMode) {
+        timeRemaining += 20;
+        document.querySelector('.time-remaining').textContent = timeRemaining;
+        // Add visual feedback for time bonus
+        const timerDisplay = document.querySelector('.timer-display');
+        timerDisplay.style.animation = 'victoryPulse 0.5s';
+        setTimeout(() => {
+          timerDisplay.style.animation = '';
+        }, 500);
+      }
+  
+    } else {
+      feedback.textContent = "✗ Try again! ✗";
+      feedback.classList.add('wrong');
+      wordContainer.classList.add('wrong');
+      
+      currentStreak = 0;
+      document.getElementById('streak-count').textContent = currentStreak;
+      
+      inputs.forEach(input => {
+        if(input.classList.contains('wrong')) {
+          input.style.animation = 'wrongShake 0.5s ease-in-out';
+        }
+      });
+  
+      // Subtract 20 seconds for wrong answer if timer mode is active
+      if (timerMode) {
+        timeRemaining = Math.max(0, timeRemaining - 20); // Prevent negative time
+        document.querySelector('.time-remaining').textContent = timeRemaining;
+        // Add visual feedback for time penalty
+        const timerDisplay = document.querySelector('.timer-display');
+        timerDisplay.style.animation = 'wrongShake 0.5s';
+        setTimeout(() => {
+          timerDisplay.style.animation = '';
+        }, 500);
+        
+        // End game if time runs out
+        if (timeRemaining <= 0) {
+          endGame();
+        }
+      }
+    }
+  }
+  
+  // Add event listeners for the word completion modal
+  document.querySelector('.close-word-modal').addEventListener('click', () => {
+    modalOverlayWord.classList.remove('active');
+    wordCompleteModal.classList.remove('active');
+  });
+  
+  modalOverlayWord.addEventListener('click', () => {
+    modalOverlayWord.classList.remove('active');
+    wordCompleteModal.classList.remove('active');
+  });
+  
+  for (let i = 0; i < Math.min(20, MAX_LETTERS); i++) {
+    createLetter();
+  }
+  
+  function createLetter() {
+    const letter = document.createElement('div');
+    letter.className = 'letter';
+    letter.textContent = letters[Math.floor(Math.random() * letters.length)];
+    letter.style.left = Math.random() * 100 + 'vw';
+    container.appendChild(letter);
+    letter.addEventListener('animationend', () => {
+      letter.remove();
+    });
+    if (container.children.length > MAX_LETTERS) {
+      container.removeChild(container.children[0]);
+    }
+  }
+  
+  setInterval(createLetter, 1000);
+  </script>
+  </body></html>
